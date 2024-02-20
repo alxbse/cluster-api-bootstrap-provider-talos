@@ -547,6 +547,50 @@ func TestIntegration(t *testing.T) {
 		require.Error(t, err)
 		assert.True(t, strings.Contains(err.Error(), "is immutable"))
 	})
+
+	t.Run("Endpoints", func(t *testing.T) {
+		t.Parallel()
+
+		namespaceName := setupTest(ctx, t, c)
+		cluster := createCluster(ctx, t, c, namespaceName, nil)
+
+		controlplanes := []*bootstrapv1alpha3.TalosConfig{}
+
+		ip := netip.MustParseAddr("10.5.0.2")
+
+		for i := 0; i < 3; i++ {
+			talosConfig := createTalosConfig(ctx, t, c, namespaceName, bootstrapv1alpha3.TalosConfigSpec{
+				GenerateType: talosmachine.TypeControlPlane.String(),
+				TalosVersion: TalosVersion,
+				Endpoints: []string{
+					"1.2.3.4",
+				},
+			})
+
+			machine := createMachine(ctx, t, c, cluster, talosConfig, true)
+
+			controlplanes = append(controlplanes, talosConfig)
+
+			waitForReady(ctx, t, c, talosConfig)
+
+			assertClientConfig(t, talosConfig)
+			provider := assertMachineConfiguration(ctx, t, c, talosConfig)
+
+			assert.Equal(t, []string{"1.2.3.4"}, provider.Machine().Security().CertSANs())
+
+			patchMachineAddress(ctx, t, c, machine, ip.String())
+
+			ip = ip.Next()
+		}
+
+		expectedEndpoints := []string{
+			"1.2.3.4",
+		}
+
+		waitForEndpointsClusterClientConfig(ctx, t, c, cluster, len(expectedEndpoints))
+
+		assertClusterClientConfig(ctx, t, c, cluster, expectedEndpoints...)
+	})
 }
 
 // legacy cluster secret format

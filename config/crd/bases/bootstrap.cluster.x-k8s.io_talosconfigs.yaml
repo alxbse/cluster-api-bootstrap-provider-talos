@@ -116,6 +116,10 @@ spec:
                 type: array
               data:
                 type: string
+              endpoints:
+                items:
+                  type: string
+                type: array
               generateType:
                 type: string
               hostname:
