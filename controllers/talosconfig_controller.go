@@ -510,6 +510,10 @@ func (r *TalosConfigReconciler) genConfigs(ctx context.Context, scope *TalosConf
 
 	APIEndpointPort := strconv.Itoa(int(scope.Cluster.Spec.ControlPlaneEndpoint.Port))
 
+	if machineType == machine.TypeControlPlane && scope.Config.Spec.Endpoints != nil {
+		genOptions = append(genOptions, generate.WithAdditionalSubjectAltNames(scope.Config.Spec.Endpoints))
+	}
+
 	input, err := generate.NewInput(
 		scope.Cluster.Name,
 		"https://"+scope.Cluster.Spec.ControlPlaneEndpoint.Host+":"+APIEndpointPort,

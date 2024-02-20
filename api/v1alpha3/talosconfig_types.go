@@ -23,7 +23,8 @@ type TalosConfigSpec struct {
 	// Talos Linux machine configuration strategic merge patch list.
 	StrategicPatches []string `json:"strategicPatches,omitempty"`
 	// Set hostname in the machine configuration to some value.
-	Hostname HostnameSpec `json:"hostname,omitempty"`
+	Hostname  HostnameSpec `json:"hostname,omitempty"`
+	Endpoints []string     `json:"endpoints,omitempty"`
 	// Important: Run "make" to regenerate code after modifying this file
 }
 

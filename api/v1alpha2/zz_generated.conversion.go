@@ -192,6 +192,7 @@ func autoConvert_v1alpha3_TalosConfigSpec_To_v1alpha2_TalosConfigSpec(in *v1alph
 	// WARNING: in.ConfigPatches requires manual conversion: does not exist in peer-type
 	// WARNING: in.StrategicPatches requires manual conversion: does not exist in peer-type
 	// WARNING: in.Hostname requires manual conversion: does not exist in peer-type
+	// WARNING: in.Endpoints requires manual conversion: does not exist in peer-type
 	return nil
 }
 

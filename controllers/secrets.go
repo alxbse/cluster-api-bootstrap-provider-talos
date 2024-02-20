@@ -210,17 +210,19 @@ func (r *TalosConfigReconciler) reconcileClientConfig(ctx context.Context, log l
 		return nil
 	}
 
-	machines, err := collections.GetFilteredMachinesForCluster(ctx, r.Client, scope.Cluster, collections.ControlPlaneMachines(scope.Cluster.Name))
-	if err != nil {
-		return fmt.Errorf("failed getting control plane machines: %w", err)
-	}
+	endpoints := scope.Config.Spec.Endpoints
 
-	var endpoints []string
+	if len(endpoints) == 0 {
+		machines, err := collections.GetFilteredMachinesForCluster(ctx, r.Client, scope.Cluster, collections.ControlPlaneMachines(scope.Cluster.Name))
+		if err != nil {
+			return fmt.Errorf("failed getting control plane machines: %w", err)
+		}
 
-	for _, machine := range machines {
-		for _, addr := range machine.Status.Addresses {
-			if addr.Type == capiv1.MachineExternalIP || addr.Type == capiv1.MachineInternalIP {
-				endpoints = append(endpoints, addr.Address)
+		for _, machine := range machines {
+			for _, addr := range machine.Status.Addresses {
+				if addr.Type == capiv1.MachineExternalIP || addr.Type == capiv1.MachineInternalIP {
+					endpoints = append(endpoints, addr.Address)
+				}
 			}
 		}
 	}
